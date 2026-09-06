@@ -14,6 +14,7 @@ from .plotting import (
     plot_data,
     plot_result,
     plot_level_comparison,
+    plot_uncertainty_structure,
 )
 
 from .diagnostics import (
@@ -35,6 +36,7 @@ __all__ = [
     "plot_data",
     "plot_result",
     "plot_level_comparison",
+    "plot_uncertainty_structure",
     "data_summary",
     "print_data_summary",
     "validate_data",
