@@ -20,6 +20,7 @@ from .diagnostics import (
     data_summary,
     print_data_summary,
     validate_data,
+    uncertainty_summary,
 )
 
 
@@ -37,4 +38,5 @@ __all__ = [
     "data_summary",
     "print_data_summary",
     "validate_data",
+    "uncertainty_summary",
 ]
