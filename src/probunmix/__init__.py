@@ -9,6 +9,7 @@ from .results import UnmixingResult
 from .synthetic import generate_example
 from .io import from_arrays
 from .fit import fit
+from .plotting import plot_data, plot_result
 
 
 __version__ = "0.1.0"
@@ -19,4 +20,6 @@ __all__ = [
     "generate_example",
     "from_arrays",
     "fit",
+    "plot_data",
+    "plot_result",
 ]
