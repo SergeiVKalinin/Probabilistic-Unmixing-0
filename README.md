@@ -1,5 +1,7 @@
 # Probabilistic Unmixing 0
 
+[![Tests](https://github.com/SergeiVKalinin/Probabilistic-Unmixing-0/actions/workflows/tests.yml/badge.svg)](https://github.com/SergeiVKalinin/Probabilistic-Unmixing-0/actions/workflows/tests.yml)
+
 A compact Python package for probabilistic spectral unmixing with uncertain concentrations and progressively weaker assumptions about the component spectra.
 
 For the current implementation:
