@@ -9,7 +9,13 @@ from .results import UnmixingResult
 from .synthetic import generate_example
 from .io import from_arrays
 from .fit import fit
-from .plotting import plot_data, plot_result
+
+from .plotting import (
+    plot_data,
+    plot_result,
+    plot_level_comparison,
+)
+
 from .diagnostics import (
     data_summary,
     print_data_summary,
@@ -27,6 +33,7 @@ __all__ = [
     "fit",
     "plot_data",
     "plot_result",
+    "plot_level_comparison",
     "data_summary",
     "print_data_summary",
     "validate_data",
