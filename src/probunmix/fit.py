@@ -2,6 +2,7 @@
 
 from .level0 import fit_level0
 from .level1 import fit_level1
+from .level2 import fit_level2
 
 
 def fit(data, level, **kwargs):
@@ -44,8 +45,9 @@ def fit(data, level, **kwargs):
         )
 
     if level == 2:
-        raise NotImplementedError(
-            "Level 2 inference has not been added yet."
+        return fit_level2(
+            data,
+            **kwargs,
         )
 
     raise ValueError(
