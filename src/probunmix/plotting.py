@@ -2,6 +2,7 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+from .diagnostics import uncertainty_summary
 
 
 def plot_data(data, n_spectra=8):
@@ -406,3 +407,211 @@ def plot_level_comparison(
     return fig
 
 
+def plot_uncertainty_structure(data):
+    """
+    Visualize component-specific uncertainty in an UnmixingData object.
+
+    The figure summarizes three distinct forms of prior information:
+
+    1. concentration / mixture-fraction uncertainty;
+    2. Level 1 parametric spectral uncertainty;
+    3. Level 2 functional spectral uncertainty.
+
+    Parameters
+    ----------
+    data : UnmixingData
+        Dataset containing concentration uncertainty and optional
+        Level 1 / Level 2 spectral information.
+
+    Returns
+    -------
+    matplotlib.figure.Figure
+        Figure summarizing the uncertainty structure.
+    """
+
+    summary = uncertainty_summary(
+        data
+    )
+
+    K = data.n_components
+
+    component_labels = [
+        f"Component {k + 1}"
+        for k in range(K)
+    ]
+
+    fig, axes = plt.subplots(
+        1,
+        3,
+        figsize=(15, 4.5),
+    )
+
+    # ========================================================
+    # 1. Concentration uncertainty
+    # ========================================================
+
+    ax = axes[0]
+
+    concentration_sd = summary[
+        "concentration_sd"
+    ]
+
+    ax.bar(
+        np.arange(K),
+        concentration_sd,
+    )
+
+    ax.set_xticks(
+        np.arange(K)
+    )
+
+    ax.set_xticklabels(
+        component_labels,
+        rotation=30,
+        ha="right",
+    )
+
+    ax.set_ylabel(
+        "Concentration SD"
+    )
+
+    ax.set_title(
+        "Concentration uncertainty"
+    )
+
+    # ========================================================
+    # 2. Level 1 parameter uncertainty
+    # ========================================================
+
+    ax = axes[1]
+
+    theta_sigma = summary[
+        "level1_theta_sigma"
+    ]
+
+    if theta_sigma is not None:
+
+        image = ax.imshow(
+            theta_sigma,
+            aspect="auto",
+        )
+
+        parameter_labels = [
+            "r",
+            "mu1",
+            "sigma1",
+            "mu2",
+            "sigma2",
+        ]
+
+        if theta_sigma.shape[1] == 5:
+
+            ax.set_xticks(
+                np.arange(5)
+            )
+
+            ax.set_xticklabels(
+                parameter_labels,
+                rotation=30,
+                ha="right",
+            )
+
+        else:
+
+            ax.set_xlabel(
+                "Parameter"
+            )
+
+        ax.set_yticks(
+            np.arange(K)
+        )
+
+        ax.set_yticklabels(
+            component_labels
+        )
+
+        ax.set_title(
+            "Level 1 parameter SD"
+        )
+
+        fig.colorbar(
+            image,
+            ax=ax,
+            label="Prior parameter SD",
+        )
+
+    else:
+
+        ax.text(
+            0.5,
+            0.5,
+            "No Level 1\nspectral prior",
+            ha="center",
+            va="center",
+            transform=ax.transAxes,
+        )
+
+        ax.set_title(
+            "Level 1 parameter uncertainty"
+        )
+
+        ax.set_xticks([])
+        ax.set_yticks([])
+
+    # ========================================================
+    # 3. Level 2 functional spectral uncertainty
+    # ========================================================
+
+    ax = axes[2]
+
+    functional_uncertainty = summary[
+        "level2_relative_spectral_uncertainty"
+    ]
+
+    if functional_uncertainty is not None:
+
+        ax.bar(
+            np.arange(K),
+            functional_uncertainty,
+        )
+
+        ax.set_xticks(
+            np.arange(K)
+        )
+
+        ax.set_xticklabels(
+            component_labels,
+            rotation=30,
+            ha="right",
+        )
+
+        ax.set_ylabel(
+            "Relative functional uncertainty"
+        )
+
+    else:
+
+        ax.text(
+            0.5,
+            0.5,
+            "No Level 2\nspectral library",
+            ha="center",
+            va="center",
+            transform=ax.transAxes,
+        )
+
+        ax.set_xticks([])
+        ax.set_yticks([])
+
+    ax.set_title(
+        "Level 2 spectral uncertainty"
+    )
+
+    fig.suptitle(
+        "Component-Specific Prior Uncertainty",
+        fontsize=14,
+    )
+
+    fig.tight_layout()
+
+    return fig
