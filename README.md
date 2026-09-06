@@ -1,6 +1,3 @@
-Paste the following as the **entire contents of `README.md`**.
-
-````markdown
 # Probabilistic Unmixing 0
 
 A compact Python package for probabilistic spectral unmixing with uncertain concentrations and progressively weaker assumptions about the component spectra.
