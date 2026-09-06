@@ -1,8 +1,13 @@
 """Load the experimental-style example into probunmix.
 
 This script intentionally does NOT load synthetic ground truth.
-Once the files have been written to disk, they are treated exactly
-like experimental measurements.
+
+If the example data files do not yet exist, they are generated
+automatically. Once written to disk, the files are reloaded and
+treated exactly like experimental measurements.
+
+The resulting UnmixingData object therefore contains measured data
+and supplied spectral knowledge, but no S_true, W_true, or Y_clean.
 """
 
 from pathlib import Path
@@ -17,6 +22,39 @@ import probunmix as pu
 # ============================================================
 
 HERE = Path(__file__).resolve().parent
+
+
+# ============================================================
+# Create example files if they are not present
+# ============================================================
+
+required_files = [
+    "energy.csv",
+    "spectra.csv",
+    "spectral_noise.csv",
+    "compositions.csv",
+    "level0_endmembers.csv",
+    "level1_theta_mean.csv",
+    "level1_theta_sigma.csv",
+    "level2_spectral_library.npy",
+]
+
+missing_files = [
+    name
+    for name in required_files
+    if not (HERE / name).exists()
+]
+
+if missing_files:
+
+    print(
+        "Example data files are missing. "
+        "Generating them now..."
+    )
+
+    # Importing this module executes the example-data generator
+    # and writes the required files into this directory.
+    import make_example_files  # noqa: F401
 
 
 # ============================================================
@@ -50,11 +88,34 @@ composition_table = np.loadtxt(
     skiprows=1,
 )
 
-# This example has four components.
-K = composition_table.shape[1] // 2
+# The table contains:
+#
+# first K columns  -> W_mean
+# next K columns   -> W_sigma
 
-W_mean = composition_table[:, :K]
-W_sigma = composition_table[:, K:]
+if composition_table.ndim != 2:
+    raise ValueError(
+        "compositions.csv must contain a two-dimensional table."
+    )
+
+if composition_table.shape[1] % 2 != 0:
+    raise ValueError(
+        "compositions.csv must contain an equal number of "
+        "composition and uncertainty columns."
+    )
+
+K = (
+    composition_table.shape[1]
+    // 2
+)
+
+W_mean = (
+    composition_table[:, :K]
+)
+
+W_sigma = (
+    composition_table[:, K:]
+)
 
 
 # ============================================================
@@ -119,13 +180,40 @@ data.set_level2(
 
 
 # ============================================================
-# Validate and inspect
+# Validate the reconstructed experimental dataset
 # ============================================================
 
-pu.validate_data(data)
-pu.print_data_summary(data)
+pu.validate_data(
+    data
+)
 
+
+# ============================================================
+# Display summary when this file is executed directly
+# ============================================================
 
 if __name__ == "__main__":
+
+    pu.print_data_summary(
+        data
+    )
+
     print()
-    print("Experimental-style dataset loaded successfully.")
+    print(
+        "Experimental-style dataset loaded successfully."
+    )
+
+    print()
+    print("Synthetic truth attached:")
+    print(
+        "  W_true:",
+        data.W_true is not None,
+    )
+    print(
+        "  S_true:",
+        data.S_true is not None,
+    )
+    print(
+        "  Y_clean:",
+        data.Y_clean is not None,
+    )
