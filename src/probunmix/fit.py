@@ -1,6 +1,7 @@
 """Unified inference interface for probabilistic unmixing."""
 
 from .level0 import fit_level0
+from .level1 import fit_level1
 
 
 def fit(data, level, **kwargs):
@@ -31,11 +32,15 @@ def fit(data, level, **kwargs):
     """
 
     if level == 0:
-        return fit_level0(data, **kwargs)
+        return fit_level0(
+            data,
+            **kwargs,
+        )
 
     if level == 1:
-        raise NotImplementedError(
-            "Level 1 inference has not been added yet."
+        return fit_level1(
+            data,
+            **kwargs,
         )
 
     if level == 2:
