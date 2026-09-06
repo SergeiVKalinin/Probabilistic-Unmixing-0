@@ -216,3 +216,14 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+
+# Generated probabilistic-unmixing example data
+examples/experimental_example/energy.csv
+examples/experimental_example/spectra.csv
+examples/experimental_example/spectral_noise.csv
+examples/experimental_example/compositions.csv
+examples/experimental_example/level0_endmembers.csv
+examples/experimental_example/level1_theta_mean.csv
+examples/experimental_example/level1_theta_sigma.csv
+examples/experimental_example/level2_spectral_library.npy
