@@ -241,3 +241,168 @@ def plot_result(data, result):
     fig.tight_layout()
 
     return fig
+
+def plot_level_comparison(
+    data,
+    *results,
+):
+    """
+    Compare unmixing results from multiple knowledge levels.
+
+    The figure contains two rows:
+
+    Top row
+        Concentration / mixture-fraction estimates for each component.
+
+    Bottom row
+        Recovered endmember spectrum for each component.
+
+    If synthetic truth is available, it is shown for reference.
+
+    Parameters
+    ----------
+    data : UnmixingData
+        Common input dataset used by all analyses.
+
+    *results : UnmixingResult
+        Results to compare, typically Level 0, Level 1, and Level 2.
+
+    Returns
+    -------
+    matplotlib.figure.Figure
+        Comparison figure.
+    """
+
+    if len(results) == 0:
+        raise ValueError(
+            "At least one UnmixingResult must be supplied."
+        )
+
+    K = data.n_components
+
+    for result in results:
+
+        if result.n_components != K:
+            raise ValueError(
+                "All results must have the same number "
+                "of components as the dataset."
+            )
+
+    fig, axes = plt.subplots(
+        2,
+        K,
+        figsize=(4 * K, 7),
+        squeeze=False,
+    )
+
+    # ========================================================
+    # Top row: concentrations / mixture fractions
+    # ========================================================
+
+    x = np.arange(
+        data.n_locations
+    )
+
+    for k in range(K):
+
+        ax = axes[0, k]
+
+        # Measured concentration information supplied as input.
+        ax.plot(
+            x,
+            data.W_mean[:, k],
+            linestyle=":",
+            label="Measured composition",
+        )
+
+        # Synthetic truth, when available.
+        if data.W_true is not None:
+
+            ax.plot(
+                x,
+                data.W_true[:, k],
+                linestyle="--",
+                label="Truth",
+            )
+
+        # Inferred posterior means.
+        for result in results:
+
+            ax.plot(
+                x,
+                result.W_mean[:, k],
+                label=f"Level {result.level}",
+            )
+
+        ax.set_ylim(
+            0.0,
+            1.0,
+        )
+
+        ax.set_xlabel(
+            "Measurement location"
+        )
+
+        ax.set_ylabel(
+            "Fraction"
+        )
+
+        ax.set_title(
+            f"Component {k + 1}: fractions"
+        )
+
+        if k == 0:
+            ax.legend()
+
+    # ========================================================
+    # Bottom row: endmember spectra
+    # ========================================================
+
+    for k in range(K):
+
+        ax = axes[1, k]
+
+        # Synthetic truth, when available.
+        if data.S_true is not None:
+
+            ax.plot(
+                data.E,
+                data.S_true[k],
+                linestyle="--",
+                label="Truth",
+            )
+
+        # Posterior mean spectra.
+        for result in results:
+
+            ax.plot(
+                data.E,
+                result.S_mean[k],
+                label=f"Level {result.level}",
+            )
+
+        ax.set_xlabel(
+            "Spectral coordinate"
+        )
+
+        ax.set_ylabel(
+            "Intensity"
+        )
+
+        ax.set_title(
+            f"Component {k + 1}: endmember"
+        )
+
+        if k == 0:
+            ax.legend()
+
+    fig.suptitle(
+        "Probabilistic Unmixing: Level Comparison",
+        fontsize=14,
+    )
+
+    fig.tight_layout()
+
+    return fig
+
+
