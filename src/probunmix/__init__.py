@@ -10,6 +10,11 @@ from .synthetic import generate_example
 from .io import from_arrays
 from .fit import fit
 from .plotting import plot_data, plot_result
+from .diagnostics import (
+    data_summary,
+    print_data_summary,
+    validate_data,
+)
 
 
 __version__ = "0.1.0"
@@ -22,4 +27,7 @@ __all__ = [
     "fit",
     "plot_data",
     "plot_result",
+    "data_summary",
+    "print_data_summary",
+    "validate_data",
 ]
