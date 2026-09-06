@@ -258,3 +258,115 @@ def validate_data(data):
             )
 
     return True
+
+def uncertainty_summary(data):
+    """
+    Summarize component-specific concentration and spectral uncertainty.
+
+    Returns
+    -------
+    dict
+        Dictionary containing:
+
+        concentration_sd
+            Mean supplied concentration uncertainty for each component.
+
+        level1_theta_sigma
+            Level 1 parameter-prior standard deviations, if available.
+
+        level2_relative_spectral_uncertainty
+            Dimensionless Level 2 functional uncertainty for each
+            component, computed as
+
+                RMS(pointwise library SD)
+                -------------------------
+                RMS(library mean spectrum)
+
+            This allows spectral uncertainty to be compared between
+            components even when their spectral intensities differ.
+    """
+
+    summary = {}
+
+    # ========================================================
+    # Concentration uncertainty
+    # ========================================================
+
+    summary["concentration_sd"] = np.mean(
+        data.W_sigma,
+        axis=0,
+    )
+
+    # ========================================================
+    # Level 1 parameter uncertainty
+    # ========================================================
+
+    if data.theta_sigma is not None:
+
+        summary["level1_theta_sigma"] = (
+            np.asarray(
+                data.theta_sigma,
+                dtype=float,
+            ).copy()
+        )
+
+    else:
+
+        summary["level1_theta_sigma"] = None
+
+    # ========================================================
+    # Level 2 functional spectral uncertainty
+    # ========================================================
+
+    if data.S_library is not None:
+
+        library = np.asarray(
+            data.S_library,
+            dtype=float,
+        )
+
+        library_mean = np.mean(
+            library,
+            axis=1,
+        )
+
+        library_sd = np.std(
+            library,
+            axis=1,
+            ddof=1,
+        )
+
+        rms_sd = np.sqrt(
+            np.mean(
+                library_sd ** 2,
+                axis=1,
+            )
+        )
+
+        rms_mean = np.sqrt(
+            np.mean(
+                library_mean ** 2,
+                axis=1,
+            )
+        )
+
+        relative_uncertainty = (
+            rms_sd
+            / np.maximum(
+                rms_mean,
+                1e-15,
+            )
+        )
+
+        summary[
+            "level2_relative_spectral_uncertainty"
+        ] = relative_uncertainty
+
+    else:
+
+        summary[
+            "level2_relative_spectral_uncertainty"
+        ] = None
+
+    return summary
+
